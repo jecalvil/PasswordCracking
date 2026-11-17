@@ -272,6 +272,53 @@ def method_word_plus_word():
     print("Finished 2 word combination")
 
 
+def two_word_combo_plus_single_digit():
+    with open("dictionary.txt", "r") as file:
+        words = [line.strip() for line in file if line.strip()]
+
+    remaining = {
+        "ca1f7fef6f7a839c083e96f77ac7cf3991323af7": 12,
+        "808543b37169708c597e23c7adbe743be8e05ad7": 16,
+        "13de3541c0564ee2267e37a85045a615476cfa03": 20,
+    }
+
+    attempt_count = 0
+
+    for word1 in words:
+        hash1 = hashlib.sha1(word1.encode())
+
+        for word2 in words:
+            base_len = len(word1) + len(word2)
+            if base_len + 1 > 20:
+                continue
+
+            hash_word1_word2 = hash1.copy()
+            hash_word1_word2.update(word2.encode())
+
+            for i in range(10):
+                attempt_count += 1
+                if attempt_count % 1_000_000 == 0:
+                    print(f"Checked {attempt_count:,} combinations so far")
+
+                num_str = str(i)
+                hash_final = hash_word1_word2.copy()
+                hash_final.update(num_str.encode())
+                computed_hash = hash_final.hexdigest()
+
+                if computed_hash in remaining:
+                    candidate = f"{word1}{word2}{num_str}"
+                    print(
+                        f"Match found: Hash #{remaining[computed_hash]} {candidate} -> {computed_hash}"
+                    )
+                    del remaining[computed_hash]
+
+                if not remaining:
+                    print("All targeted hashes found.")
+                    return
+
+    print(f"Finished 2-word + single-digit pass. Still unsolved: {remaining}")
+
+
 if __name__ == "__main__":
     # === Single word hash ===
     ### method_1()
@@ -336,4 +383,11 @@ if __name__ == "__main__":
     # Match found: Hash #15 bestrings -> 177080c8b8f44ea62c1a4baeeeb726ac1f9985ae
     # Match found: Hash #19 investigationsaving -> 65abe9e1efbd6efbdf3d6ea3c4c2f6c0325cbb68
     # Match found: Hash #14 excitephysician -> 08958bb5e582136f7b4cc32bdbe9b23603613d1a
+
+    # 2 word combo plus 1 digit
+    # two_word_combo_plus_single_digit()
+    # Match found: Hash #20 jerrysay8 -> 13de3541c0564ee2267e37a85045a615476cfa03
+    # Finished 2-word + single-digit pass. Still unsolved: {'ca1f7fef6f7a839c083e96f77ac7cf3991323af7': 12, '808543b37169708c597e23c7adbe743be8e05ad7': 16}
+
+    # Hashes left: 16 and 20, likely 3 word combos
     pass
