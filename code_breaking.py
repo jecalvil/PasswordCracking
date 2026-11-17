@@ -224,6 +224,54 @@ def method_word_plus_5_digit():
     print("Done with Single word + 5 digit")
 
 
+# ===========================
+remaining = {
+    "ca1f7fef6f7a839c083e96f77ac7cf3991323af7": 12,
+    "08958bb5e582136f7b4cc32bdbe9b23603613d1a": 14,
+    "177080c8b8f44ea62c1a4baeeeb726ac1f9985ae": 15,
+    "808543b37169708c597e23c7adbe743be8e05ad7": 16,
+    "65abe9e1efbd6efbdf3d6ea3c4c2f6c0325cbb68": 19,
+    "13de3541c0564ee2267e37a85045a615476cfa03": 20,
+}
+
+
+# 2 word combination
+def method_word_plus_word():
+    with open("dictionary.txt", "r") as file:
+        words = [line.strip() for line in file if line.strip()]
+
+    remaining = {
+        "ca1f7fef6f7a839c083e96f77ac7cf3991323af7": 12,
+        "08958bb5e582136f7b4cc32bdbe9b23603613d1a": 14,
+        "177080c8b8f44ea62c1a4baeeeb726ac1f9985ae": 15,
+        "808543b37169708c597e23c7adbe743be8e05ad7": 16,
+        "65abe9e1efbd6efbdf3d6ea3c4c2f6c0325cbb68": 19,
+        "13de3541c0564ee2267e37a85045a615476cfa03": 20,
+    }
+
+    for word1 in words:
+        hash1 = hashlib.sha1(word1.encode())  # hash w1 Once, and we can reuse it
+
+        for word2 in words:
+            if len(word1) + len(word2) > 20:
+                continue  # skip max length
+
+            hash2 = hash1.copy()  # restore checkpoint after word1
+            hash2.update(word2.encode())  # only process word 2's bytes from here
+            computed_hash = hash2.hexdigest()
+
+            if computed_hash in remaining:
+                candidate = f"{word1}{word2}"
+                match_num = remaining[computed_hash]
+                print(f"Match found: Hash #{match_num} {candidate} -> {computed_hash}")
+                del remaining[computed_hash]  # stop checking this one once found
+
+            if not remaining:
+                break  # everything's cracked, no need to keep going
+
+    print("Finished 2 word combination")
+
+
 if __name__ == "__main__":
     # === Single word hash ===
     ### method_1()
@@ -282,4 +330,10 @@ if __name__ == "__main__":
     # Match found: Hash #13 bewildered -> 39fb6e0d23f83a4e016c0f725dda9050b72af4a2
     # Match found: Hash #17 aid123 -> 9a4b9040cb885c4c25db1d821a2cec35c11cd636
     # Match found: Hash #18 demonstration99999 -> 925184f33c2cb6f0bb7abdfeef317001d2569051
+
+    # 2 word combination
+    ### method_word_plus_word()
+    # Match found: Hash #15 bestrings -> 177080c8b8f44ea62c1a4baeeeb726ac1f9985ae
+    # Match found: Hash #19 investigationsaving -> 65abe9e1efbd6efbdf3d6ea3c4c2f6c0325cbb68
+    # Match found: Hash #14 excitephysician -> 08958bb5e582136f7b4cc32bdbe9b23603613d1a
     pass
